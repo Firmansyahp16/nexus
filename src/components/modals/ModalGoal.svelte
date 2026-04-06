@@ -1,25 +1,26 @@
 <script lang="ts">
   import { supabase } from "../../lib/supabase";
-  import type { Goal } from "../../lib/types";
+  import type { GoalInput, GoalView } from "../../lib/types";
   import { loadAll } from "../../stores/app";
 
-  export let goal: Goal | null = null;
+  export let goal: GoalView | null = null;
   export let onClose: () => void;
 
   const isEdit = !!goal;
 
-  let form = {
-    goal_name: goal?.goal_name ?? "",
-    target: goal?.target ?? 0,
-    priority: goal?.priority ?? 1,
-    target_date: goal?.target_date ?? "", // <-- tambah ini
+  let form: GoalInput = {
+    name: goal?.name || null,
+    target: goal?.target || null,
+    priority: goal?.priority || null,
+    target_date: goal?.target_date || null,
+    account_id: goal?.account_id || null,
   };
 
   let saving = false;
   let error = "";
 
   async function save() {
-    if (!form.goal_name.trim()) {
+    if (!form.name?.trim()) {
       error = "Goal name is required.";
       return;
     }
@@ -34,23 +35,26 @@
       return;
     }
 
+    if (!form.account_id) {
+      error = "Account is required.";
+      return;
+    }
+
     saving = true;
     error = "";
 
-    const payload = {
-      goal_name: form.goal_name.trim(),
-      target: Number(form.target),
-      priority: Number(form.priority) || 1,
-      target_date: form.target_date, // <-- tambah ini
+    const payload: GoalInput = {
+      name: form.name.trim() || null,
+      target: Number(form.target) || null,
+      priority: Number(form.priority) || null,
+      target_date: form.target_date || null,
+      account_id: form.account_id || null,
     };
 
     let result;
 
     if (isEdit) {
-      result = await supabase
-        .from("goals")
-        .update(payload)
-        .eq("goal_id", goal?.goal_id);
+      result = await supabase.from("goals").update(payload).eq("id", goal?.id);
     } else {
       result = await supabase.from("goals").insert(payload);
     }
@@ -72,10 +76,7 @@
     saving = true;
     error = "";
 
-    const result = await supabase
-      .from("goals")
-      .delete()
-      .eq("goal_id", goal?.goal_id);
+    const result = await supabase.from("goals").delete().eq("id", goal?.id);
 
     saving = false;
 
@@ -115,7 +116,7 @@
         <input
           class="input input-bordered input-sm"
           type="text"
-          bind:value={form.goal_name}
+          bind:value={form.name}
         />
       </label>
 

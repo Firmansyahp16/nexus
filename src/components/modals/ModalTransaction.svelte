@@ -1,9 +1,13 @@
 <script lang="ts">
   import { supabase } from "../../lib/supabase";
-  import { TYPES, type Transaction } from "../../lib/types";
+  import {
+    TRANSACTION_TYPES,
+    type TransactionInput,
+    type TransactionView,
+  } from "../../lib/types";
   import { accounts, categories, loadAll } from "../../stores/app";
 
-  export let transaction: Transaction | null = null;
+  export let transaction: TransactionView | null = null;
   export let onClose: () => void;
 
   const isEdit = !!transaction;
@@ -16,16 +20,14 @@
     return local.toISOString().slice(0, 16);
   }
 
-  type TransactionForm = Omit<Transaction, "transaction_id" | "tax_reserve">;
-
-  let form: TransactionForm = {
+  let form: TransactionInput = {
     date: toLocalDT(transaction?.date),
-    type: transaction?.type ?? "INCOME",
-    amount: transaction?.amount ?? 0,
-    description: transaction?.description ?? "",
-    category_id: transaction?.category_id ?? "",
-    account_id: transaction?.account_id ?? "",
-    to_account_id: transaction?.to_account_id ?? "",
+    type: transaction?.type || "INCOME",
+    amount: transaction?.amount || null,
+    description: transaction?.description || null,
+    category_id: transaction?.category_id || null,
+    account_id: transaction?.account_id || null,
+    to_account_id: transaction?.to_account_id || null,
   };
 
   let saving = false;
@@ -55,12 +57,12 @@
     saving = true;
     error = "";
 
-    const payload: any = {
+    const payload: TransactionInput = {
       date: form.date,
-      type: form.type,
-      amount: Number(form.amount),
+      type: form.type || null,
+      amount: Number(form.amount) || null,
       description: form.description || null,
-      account_id: form.account_id,
+      account_id: form.account_id || null,
       category_id: form.type !== "TRANSFER" ? form.category_id || null : null,
       to_account_id:
         form.type === "TRANSFER" ? form.to_account_id || null : null,
@@ -72,10 +74,34 @@
       result = await supabase
         .from("transactions")
         .update(payload)
-        .eq("transaction_id", transaction?.transaction_id);
+        .eq("id", transaction?.id || null);
     } else {
       result = await supabase.from("transactions").insert(payload);
     }
+
+    saving = false;
+
+    if (result.error) {
+      error = result.error.message;
+      return;
+    }
+
+    await loadAll();
+    onClose?.();
+  }
+
+  async function remove() {
+    if (!isEdit) {
+      return;
+    }
+
+    saving = true;
+    error = "";
+
+    const result = await supabase
+      .from("transactions")
+      .delete()
+      .eq("id", transaction?.id);
 
     saving = false;
 
@@ -111,7 +137,7 @@
     </div>
 
     <div class="bg-base-200 rounded-xl p-1 flex">
-      {#each TYPES as t}
+      {#each TRANSACTION_TYPES as t}
         <button
           type="button"
           class="flex-1 text-xs font-medium py-2 rounded-lg transition
@@ -178,7 +204,7 @@
           >
             <option value="">Select account</option>
             {#each $accounts as a}
-              <option value={a.account_id}>{a.account_name}</option>
+              <option value={a.id}>{a.name}</option>
             {/each}
           </select>
         </label>
@@ -198,7 +224,7 @@
             >
               <option value="">Select account</option>
               {#each $accounts as a}
-                <option value={a.account_id}>{a.account_name}</option>
+                <option value={a.id}>{a.name}</option>
               {/each}
             </select>
           </label>
@@ -217,7 +243,7 @@
             >
               <option value="">Select category</option>
               {#each $categories as c}
-                <option value={c.category_id}>{c.category_name}</option>
+                <option value={c.id}>{c.name}</option>
               {/each}
             </select>
           </label>
@@ -247,19 +273,36 @@
       {/if}
     </div>
 
-    <div class="flex justify-end gap-3 pt-4">
-      <button class="btn btn-ghost" type="button" on:click={onClose}>
-        Cancel
-      </button>
+    <div class="modal-action mt-6 justify-between">
+      {#if isEdit}
+        <button
+          class="btn btn-error btn-outline"
+          class:loading={saving}
+          type="button"
+          on:click={remove}
+        >
+          Delete
+        </button>
+      {/if}
 
-      <button
-        class="btn btn-primary min-w-35"
-        class:loading={saving}
-        type="button"
-        on:click={save}
-      >
-        {saving ? "Saving..." : isEdit ? "Update" : "Save"}
-      </button>
+      <div class="flex gap-2">
+        <button class="btn btn-ghost" type="button" on:click={onClose}>
+          Cancel
+        </button>
+
+        <button
+          class="btn btn-primary"
+          class:loading={saving}
+          type="button"
+          on:click={save}
+        >
+          {saving
+            ? "Saving..."
+            : isEdit
+              ? "Update Transaction"
+              : "Save Transaction"}
+        </button>
+      </div>
     </div>
   </div>
 

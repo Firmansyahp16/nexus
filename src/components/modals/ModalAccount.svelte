@@ -1,23 +1,23 @@
 <script lang="ts">
   import { supabase } from "../../lib/supabase";
-  import type { Account } from "../../lib/types";
+  import type { AccountInput, AccountView } from "../../lib/types";
   import { loadAll } from "../../stores/app";
 
-  export let account: Account | null = null;
+  export let account: AccountView | null = null;
   export let onClose: () => void;
 
-  const isEdit = !!account;
+  $: isEdit = !!account;
 
-  let form = {
-    account_name: account?.account_name ?? "",
-    initial_balance: account?.initial_balance ?? 0,
+  let form: AccountInput = {
+    name: account?.name || null,
+    initial_balance: account?.initial_balance || null,
   };
 
   let saving = false;
   let error = "";
 
   async function save() {
-    if (!form.account_name.trim()) {
+    if (!form.name?.trim()) {
       error = "Account name is required.";
       return;
     }
@@ -25,9 +25,9 @@
     saving = true;
     error = "";
 
-    const payload = {
-      account_name: form.account_name.trim(),
-      initial_balance: Number(form.initial_balance) || 0,
+    const payload: AccountInput = {
+      name: form.name.trim() || null,
+      initial_balance: Number(form.initial_balance) || null,
     };
 
     let result;
@@ -36,10 +36,34 @@
       result = await supabase
         .from("accounts")
         .update(payload)
-        .eq("account_id", account?.account_id);
+        .eq("id", account?.id);
     } else {
       result = await supabase.from("accounts").insert(payload);
     }
+
+    saving = false;
+
+    if (result.error) {
+      error = result.error.message;
+      return;
+    }
+
+    await loadAll();
+    onClose?.();
+  }
+
+  async function remove() {
+    if (!isEdit) {
+      return;
+    }
+
+    saving = true;
+    error = "";
+
+    const result = await supabase
+      .from("accounts")
+      .delete()
+      .eq("id", account?.id);
 
     saving = false;
 
@@ -79,7 +103,7 @@
         <input
           class="input input-bordered input-sm"
           type="text"
-          bind:value={form.account_name}
+          bind:value={form.name}
         />
       </label>
 
@@ -101,19 +125,32 @@
       {/if}
     </div>
 
-    <div class="modal-action mt-6">
-      <button class="btn btn-ghost" type="button" on:click={onClose}>
-        Cancel
-      </button>
+    <div class="modal-action mt-6 justify-between">
+      {#if isEdit}
+        <button
+          class="btn btn-error btn-outline"
+          class:loading={saving}
+          type="button"
+          on:click={remove}
+        >
+          Delete
+        </button>
+      {/if}
 
-      <button
-        class="btn btn-primary"
-        class:loading={saving}
-        type="button"
-        on:click={save}
-      >
-        {saving ? "Saving..." : isEdit ? "Update Account" : "Save Account"}
-      </button>
+      <div class="flex gap-2">
+        <button class="btn btn-ghost" type="button" on:click={onClose}>
+          Cancel
+        </button>
+
+        <button
+          class="btn btn-primary"
+          class:loading={saving}
+          type="button"
+          on:click={save}
+        >
+          {saving ? "Saving..." : isEdit ? "Update Account" : "Save Account"}
+        </button>
+      </div>
     </div>
   </div>
 

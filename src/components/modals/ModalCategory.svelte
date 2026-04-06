@@ -1,22 +1,22 @@
 <script lang="ts">
   import { supabase } from "../../lib/supabase";
-  import type { Category } from "../../lib/types";
+  import type { CategoryInput, CategoryView } from "../../lib/types";
   import { loadAll } from "../../stores/app";
 
-  export let category: Category | null = null;
+  export let category: CategoryView | null = null;
   export let onClose: () => void;
 
   const isEdit = !!category;
 
-  let form = {
-    category_name: category?.category_name ?? "",
+  let form: CategoryInput = {
+    name: category?.name ?? "",
   };
 
   let saving = false;
   let error = "";
 
   async function save() {
-    if (!form.category_name.trim()) {
+    if (!form.name.trim()) {
       error = "Category name is required.";
       return;
     }
@@ -24,8 +24,8 @@
     saving = true;
     error = "";
 
-    const payload = {
-      category_name: form.category_name.trim(),
+    const payload: CategoryInput = {
+      name: form.name.trim(),
     };
 
     let result;
@@ -34,7 +34,7 @@
       result = await supabase
         .from("categories")
         .update(payload)
-        .eq("category_id", category?.category_id);
+        .eq("id", category?.id);
     } else {
       result = await supabase.from("categories").insert(payload);
     }
@@ -77,7 +77,7 @@
         <input
           class="input input-bordered input-sm"
           type="text"
-          bind:value={form.category_name}
+          bind:value={form.name}
         />
       </label>
 
