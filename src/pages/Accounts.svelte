@@ -1,10 +1,10 @@
 <script lang="ts">
   import ModalAccount from "../components/modals/ModalAccount.svelte";
   import { editTrigger } from "../lib/editTrigger";
-  import type { Account } from "../lib/types";
+  import type { AccountView } from "../lib/types";
   import { accounts, fmt } from "../stores/app";
 
-  let editing: Account | null = null;
+  let editing: AccountView | null = null;
 </script>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -55,14 +55,16 @@
           </div>
 
           <div>
-            <h3 class="font-bold text-base">{a.account_name}</h3>
+            <h3 class="font-bold text-base">{a.name}</h3>
           </div>
         </div>
 
         <div class="space-y-3 text-sm">
           <div class="flex justify-between text-base-content/60">
             <span class="font-bold">Initial</span>
-            <span class="font-bold">{fmt(a.initial_balance)}</span>
+            <span class="font-bold">
+              {fmt(a.initial_balance ?? 0)}
+            </span>
           </div>
 
           <div class="flex justify-between">

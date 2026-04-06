@@ -1,10 +1,10 @@
 <script lang="ts">
   import ModalGoal from "../components/modals/ModalGoal.svelte";
   import { editTrigger } from "../lib/editTrigger";
-  import type { Goal } from "../lib/types";
+  import type { GoalView } from "../lib/types";
   import { fmt, fmtPct, goals } from "../stores/app";
 
-  let editing: Goal | null = null;
+  let editing: GoalView | null = null;
 </script>
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -68,7 +68,7 @@
 
             <div class="flex flex-col">
               <h3 class="font-semibold text-base leading-tight">
-                {g.goal_name}
+                {g.name}
               </h3>
               <span class="text-xs text-base-content/40"> Financial Goal </span>
             </div>
@@ -105,7 +105,7 @@
           <div class="flex justify-between font-semibold text-base">
             <span>Target</span>
             <span class="text-secondary">
-              {fmt(g.target)}
+              {fmt(g.target ?? 0)}
             </span>
           </div>
         </div>

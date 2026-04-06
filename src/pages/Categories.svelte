@@ -1,10 +1,10 @@
 <script lang="ts">
   import ModalCategory from "../components/modals/ModalCategory.svelte";
   import { editTrigger } from "../lib/editTrigger";
-  import type { Category } from "../lib/types";
+  import type { CategoryView } from "../lib/types";
   import { categories, fmt } from "../stores/app";
 
-  let editing: Category | null = null;
+  let editing: CategoryView | null = null;
 </script>
 
 <div class="card bg-base-200 rounded-2xl shadow-sm">
@@ -33,7 +33,7 @@
               }}
             >
               <td class="font-bold px-6 py-4">
-                {c.category_name}
+                {c.name}
               </td>
 
               <td class="text-success font-bold text-right whitespace-nowrap">

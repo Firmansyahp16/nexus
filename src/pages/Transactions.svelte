@@ -1,28 +1,28 @@
 <script lang="ts">
   import ModalTransaction from "../components/modals/ModalTransaction.svelte";
   import { editTrigger } from "../lib/editTrigger";
-  import type { Transaction } from "../lib/types";
+  import type { TransactionType, TransactionView } from "../lib/types";
   import { fmt, fmtDate, transactions } from "../stores/app";
 
-  function badgeClass(type: Transaction["type"]) {
+  function badgeClass(type: TransactionType) {
     if (type === "INCOME") return "badge-success";
     if (type === "EXPENSE") return "badge-error";
     return "badge-info";
   }
 
-  function amountClass(type: Transaction["type"]) {
+  function amountClass(type: TransactionType) {
     if (type === "INCOME") return "text-success";
     if (type === "EXPENSE") return "text-error";
     return "text-info";
   }
 
-  function amountPrefix(type: Transaction["type"]) {
+  function amountPrefix(type: TransactionType) {
     if (type === "INCOME") return "+";
     if (type === "EXPENSE") return "-";
     return "";
   }
 
-  let editing: Transaction | null = null;
+  let editing: TransactionView | null = null;
 </script>
 
 <div class="flex flex-col gap-4 lg:hidden">
@@ -71,7 +71,11 @@
       <div class="card-body p-5 gap-5">
         <div class="flex items-start justify-between">
           <div class="space-y-1">
-            <span class="badge badge-sm font-bold {badgeClass(t.type)}">
+            <span
+              class="badge badge-sm font-bold {badgeClass(
+                t.type as TransactionType,
+              )}"
+            >
               {t.type}
             </span>
             <p class="text-xs text-base-content/40">
@@ -79,8 +83,12 @@
             </p>
           </div>
 
-          <span class="font-semibold text-lg {amountClass(t.type)}">
-            {amountPrefix(t.type)}{fmt(t.amount)}
+          <span
+            class="font-semibold text-lg {amountClass(
+              t.type as TransactionType,
+            )}"
+          >
+            {amountPrefix(t.type as TransactionType)}{fmt(t.amount ?? 0)}
           </span>
         </div>
 
@@ -155,17 +163,19 @@
               </td>
 
               <td>
-                <span class="badge badge-sm {badgeClass(t.type)}">
+                <span
+                  class="badge badge-sm {badgeClass(t.type as TransactionType)}"
+                >
                   {t.type}
                 </span>
               </td>
 
               <td
                 class="font-semibold text-sm whitespace-nowrap tracking-tight {amountClass(
-                  t.type,
+                  t.type as TransactionType,
                 )}"
               >
-                {amountPrefix(t.type)}{fmt(t.amount)}
+                {amountPrefix(t.type as TransactionType)}{fmt(t.amount ?? 0)}
               </td>
 
               <td class="text-xs text-base-content/50 max-w-65 truncate">
