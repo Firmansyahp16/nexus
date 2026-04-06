@@ -1,32 +1,58 @@
-export interface Account {
-  account_id: string;
-  account_name: string;
-  initial_balance: number;
+export interface AccountEntity {
+  id: string;
+  name: string | null;
+  initial_balance: number | null;
+}
+
+export interface AccountInput {
+  name?: string | null;
+  initial_balance?: number | null;
+}
+
+export interface AccountView extends AccountEntity {
   total_income: number;
   total_expense: number;
   available_balance: number;
 }
 
-export interface Category {
-  category_id: string;
-  category_name: string;
+export interface CategoryEntity {
+  id: string;
+  name: string;
+}
+
+export interface CategoryInput {
+  name: string;
+}
+
+export interface CategoryView extends CategoryEntity {
   total_income: number;
   total_expense: number;
 }
 
-export interface Goal {
-  goal_id: string;
-  goal_name: string;
-  account_id: string;
-  target: number;
-  total_account_balance: number;
-  progress_percent: number;
-  priority: number;
-  target_date: string;
-  allocated: number;
+export interface GoalEntity {
+  id: string;
+  name: string | null;
+  target: number | null;
+  account_id: string | null;
+  priority: number | null;
+  target_date: string | null;
 }
 
-export interface Tax {
+export interface GoalInput {
+  name?: string | null;
+  target?: number | null;
+  account_id?: string | null;
+  priority?: number | null;
+  target_date?: string | null;
+}
+
+export interface GoalView extends GoalEntity {
+  total_account_balance: number;
+  allocated: number;
+  progress_percent: number;
+}
+
+export interface TaxView {
   tax_year: number;
   bruto_income: number;
   tax_estimation: number;
@@ -34,16 +60,35 @@ export interface Tax {
   minimum_savings_month: number;
 }
 
-export interface Transaction {
-  transaction_id: string;
+export type TransactionType = "INCOME" | "EXPENSE" | "TRANSFER";
+
+export interface TransactionEntity {
+  id: string;
   date: string;
-  type: "INCOME" | "EXPENSE" | "TRANSFER";
-  amount: number;
-  description: string;
-  category_id: string;
-  account_id: string;
-  to_account_id: string;
+  type: TransactionType | null;
+  amount: number | null;
+  description: string | null;
+  category_id: string | null;
+  account_id: string | null;
+  to_account_id: string | null;
+}
+
+export interface TransactionInput {
+  date: string;
+  type?: TransactionType | null;
+  amount?: number | null;
+  description?: string | null;
+  category_id?: string | null;
+  account_id?: string | null;
+  to_account_id?: string | null;
+}
+
+export interface TransactionView extends TransactionEntity {
   tax_reserve: number;
 }
 
-export const TYPES: Transaction["type"][] = ["INCOME", "EXPENSE", "TRANSFER"];
+export const TRANSACTION_TYPES: TransactionType[] = [
+  "INCOME",
+  "EXPENSE",
+  "TRANSFER",
+];

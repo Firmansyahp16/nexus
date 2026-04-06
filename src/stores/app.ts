@@ -1,10 +1,12 @@
 import { derived, writable } from "svelte/store";
 import { supabase } from "../lib/supabase";
-import type { Account, Category, Goal, Tax, Transaction } from "../lib/types";
-
-/* ============================= */
-/*            TYPES              */
-/* ============================= */
+import type {
+  AccountView,
+  CategoryView,
+  GoalView,
+  TaxView,
+  TransactionView,
+} from "../lib/types";
 
 export type Page =
   | "dashboard"
@@ -21,24 +23,16 @@ export type ModalPage = Extract<
   "transactions" | "accounts" | "categories" | "goals"
 >;
 
-/* ============================= */
-/*            STORES             */
-/* ============================= */
-
 export const activePage = writable<Page>("dashboard");
 export const sidebarOpen = writable(false);
 export const modalType = writable<ModalType | null>(null);
 
-export const accounts = writable<Account[]>([]);
-export const categories = writable<Category[]>([]);
-export const goals = writable<Goal[]>([]);
-export const taxes = writable<Tax[]>([]);
-export const transactions = writable<Transaction[]>([]);
+export const accounts = writable<AccountView[]>([]);
+export const categories = writable<CategoryView[]>([]);
+export const goals = writable<GoalView[]>([]);
+export const taxes = writable<TaxView[]>([]);
+export const transactions = writable<TransactionView[]>([]);
 export const loading = writable(true);
-
-/* ============================= */
-/*         DERIVED DATA          */
-/* ============================= */
 
 export const totalBalance = derived(accounts, ($a) =>
   $a.reduce((s, a) => s + (a.available_balance ?? 0), 0),
@@ -52,10 +46,6 @@ export const totalExpense = derived(accounts, ($a) =>
   $a.reduce((s, a) => s + (a.total_expense ?? 0), 0),
 );
 
-/* ============================= */
-/*        MODAL HELPERS          */
-/* ============================= */
-
 export const MODAL_PAGES: readonly ModalPage[] = [
   "transactions",
   "accounts",
@@ -66,10 +56,6 @@ export const MODAL_PAGES: readonly ModalPage[] = [
 export function isModalPage(page: Page): page is ModalPage {
   return MODAL_PAGES.includes(page as ModalPage);
 }
-
-/* ============================= */
-/*            LOAD DATA          */
-/* ============================= */
 
 export async function loadAll() {
   loading.set(true);
@@ -90,10 +76,6 @@ export async function loadAll() {
 
   loading.set(false);
 }
-
-/* ============================= */
-/*         FORMATTERS            */
-/* ============================= */
 
 export function fmt(n: number) {
   return new Intl.NumberFormat("id-ID", {
