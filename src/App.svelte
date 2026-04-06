@@ -3,18 +3,18 @@
   import BottomNav from "./components/BottomNav.svelte";
 
   import ModalAccount from "./components/modals/ModalAccount.svelte";
+  import Sidebar from "./components/Sidebar.svelte";
+  import Accounts from "./pages/Accounts.svelte";
+  import Dashboard from "./pages/Dashboard.svelte";
+
   import ModalCategory from "./components/modals/ModalCategory.svelte";
   import ModalGoal from "./components/modals/ModalGoal.svelte";
   import ModalTransaction from "./components/modals/ModalTransaction.svelte";
-  import Sidebar from "./components/Sidebar.svelte";
-  import Accounts from "./pages/Accounts.svelte";
+  import Topbar from "./components/Topbar.svelte";
   import Categories from "./pages/Categories.svelte";
-  import Dashboard from "./pages/Dashboard.svelte";
   import Goals from "./pages/Goals.svelte";
   import Taxes from "./pages/Taxes.svelte";
   import Transactions from "./pages/Transactions.svelte";
-
-  import Topbar from "./components/Topbar.svelte";
   import {
     activePage,
     isModalPage,
